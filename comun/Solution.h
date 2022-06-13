@@ -50,16 +50,19 @@ public:
     void print_dist(std::string file_out, const std::vector<std::vector<float>>& d);
 
     // AGG-Uniforme
-    std::pair<Solution,Solution> cruce_uniforme(const Solution& s, const Problem& p) const;
+    Solution cruce_uniforme(const Solution& s, const Problem& p) const;
     std::vector<bool> repare(std::vector<bool> h, const Problem& p) const;
     Solution(const std::vector<bool>& s, const Problem& p);
 
     // AGG-posicion
-    std::pair<Solution,Solution> cruce_posicion(const Solution& s, const Problem& p) const;
+    Solution cruce_posicion(const Solution& s, const Problem& p) const;
 
     // AGG común
     Solution mutacion(const Problem& p) const;
     Solution(int size);
+
+    // Proyecto final
+    Solution cruce_multiple(const std::vector<Solution>& padres, const Problem& p) const;
 };
 
 std::ostream& operator<<(std::ostream& out, Solution s);

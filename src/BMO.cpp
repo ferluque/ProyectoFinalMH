@@ -11,12 +11,13 @@ int main () {
     Problem p("..\\datos\\GKD-b_21_n100_m10.txt");
     int M = 60;
     vector<Solution> inicial = GeneraPoblacion(M,p);
+    int evaluaciones = M;
     SolutionCompare comp;
     sort(inicial.begin(), inicial.end(),comp);
     cout << inicial.size() << endl;
-    int evaluaciones = 0;
-
-    while (evaluaciones < 1e5) {
+    int cambio = 0;
+    bool cambiado = true;
+    while ((evaluaciones < 1e5)&&(cambio<2)) {
         // Dividimos en machos y hembras
         // Las hembras serán la primera mitad y los machos la última
         vector<Solution> hembras = vector<Solution>(inicial.begin(), inicial.begin() + M / 2);
@@ -58,13 +59,34 @@ int main () {
             if (Random::get<float>(0, 1) < probabilidades[i]) {
                 Solution cria = parthenogenesis[i].mutacion(p);
                 evaluaciones++;
-                if (cria.get_diff() < parthenogenesis[i].get_diff())
+                if (cria.get_diff() < parthenogenesis[i].get_diff()) {
                     parthenogenesis[i] = cria;
+                    cambiado = true;
+                }
             }
         }
 //        cout <<"Parthenogenesis después: " << parthenogenesis << endl;
 
         // Polyandry, una hembra con varios machos
+        // Realmente el operador es el mismo que para polygyny
+        // Ahora, las hembras poliandricas cruzarán con machos al azar, sin tener en cuenta si son mejores o peores
+        int MaxPolyandry=0.3*polyandry.size();
+        vector<int> hembras_seleccionadas = range(0,polyandry.size());
+        Random::shuffle(hembras_seleccionadas);
+        for (int i=0; i<MaxPolyandry; i++){
+            int num_padres = 4;
+            vector<int> padres = range(0,machos.size());
+            Random::shuffle(padres);
+            vector<Solution> padres_s(num_padres);
+            for (int i=0; i<num_padres;i++)
+                padres_s[i] = machos[padres[i]];
+            Solution cria = polyandry[hembras_seleccionadas[i]].cruce_multiple(padres_s,p);
+            evaluaciones++;
+            if (cria.get_diff() < polyandry[hembras_seleccionadas[i]].get_diff()) {
+                polyandry[hembras_seleccionadas[i]] = cria;
+                cambiado = true;
+            }
+        }
 
         // Monogamy, un macho y una hembra aleatoria (los machos monógamos todos tienen la misma probabilidad de cruzarse
         // pero lo harán más frecuentemente con las mejores hembras hasta alcanzar un máximo de cruces, el 50% de los machos
@@ -81,10 +103,12 @@ int main () {
             int j = 0;
             while (!cruzado) {
                 if (Random::get<float>(0, 1) < probabilidades[hembras_posibles[j]]) {
-                    Solution cria = macho.cruce_posicion(hembras[hembras_posibles[j]], p).first;
+                    Solution cria = macho.cruce_posicion(hembras[hembras_posibles[j]], p);
                     evaluaciones++;
-                    if (cria.get_diff() < macho.get_diff())
+                    if (cria.get_diff() < macho.get_diff()) {
                         monogamy[machos_cruzados[i]] = cria;
+                        cambiado = true;
+                    }
                     cruzado = true;
                 }
             }
@@ -92,8 +116,25 @@ int main () {
 //        cout << "Monogamy después: " << monogamy << endl;
 
         // Polygyny
-
-
+        // Igual que polyandry pero para los machos, igualmente, las hembras se cogen de forma aleatoria, no se
+        // tiene en cuenta si son mejores o peores.
+        int MaxPolygyny=0.3*polygyny.size();
+        vector<int> machos_seleccionados = range(0,polygyny.size());
+        Random::shuffle(machos_seleccionados);
+        for (int i=0; i<MaxPolygyny; i++){
+            int num_madres = 4;
+            vector<int> madres = range(0,polygyny.size());
+            Random::shuffle(madres);
+            vector<Solution> madres_s(num_madres);
+            for (int i=0; i<num_madres;i++)
+                madres_s[i] = hembras[madres[i]];
+            Solution cria = polygyny[machos_seleccionados[i]].cruce_multiple(madres_s,p);
+            evaluaciones++;
+            if (cria.get_diff() < polygyny[machos_seleccionados[i]].get_diff()) {
+                polygyny[machos_seleccionados[i]] = cria;
+                cambiado = true;
+            }
+        }
 
         // UNA VEZ AVANZADA LA GENERACIÓN, VOLVEMOS A UNIR Y VOLVEMOS A ORDENAR, AHORA MACHOS PUEDEN
         // PASAR A SER HEMBRAS
@@ -106,6 +147,10 @@ int main () {
         inicial.insert(inicial.end(), promiscuous.begin(), promiscuous.end());
 
         sort(inicial.begin(), inicial.end(), comp);
+        if (cambiado)
+            cambio = 0;
+        else
+            cambio++;
     }
     cout << inicial[0] << endl;
 }

@@ -74,16 +74,15 @@ ostream &operator<<(ostream &out, Solution s) {
 
 // AGG-Uniforme
 // Depurar
-pair<Solution, Solution> Solution::cruce_uniforme(const Solution &s, const Problem &p) const {
+Solution Solution::cruce_uniforme(const Solution &s, const Problem &p) const {
     vector<bool> s1 = this->selected;
     vector<bool> s2 = s.selected;
 
     vector<bool> h1(s1.size());
-    vector<bool> h2(s1.size());
     // Nos quedamos con los que coincidan
     for (int i = 0; i < s1.size(); i++) {
         if (s1[i] == s2[i])
-            h1[i] = h2[i] = s1[i];
+            h1[i] = s1[i];
             // Los que no se elige aleatoriamente de uno u otro
         else {
             bool uno = Random::get<bool>();
@@ -91,16 +90,10 @@ pair<Solution, Solution> Solution::cruce_uniforme(const Solution &s, const Probl
                 h1[i] = s1[i];
             else
                 h1[i] = s2[i];
-            uno = Random::get<bool>();
-            if (uno)
-                h2[i] = s1[i];
-            else
-                h2[i] = s2[i];
         }
     }
     h1 = repare(h1, p);
-    h2 = repare(h2, p);
-    return pair<Solution, Solution>(Solution(h1, p), Solution(h2, p));
+    return Solution(h1,p);
 }
 
 Solution::Solution(const std::vector<bool> &s, const Problem &p) {
@@ -184,18 +177,17 @@ vector<bool> Solution::repare(vector<bool> h, const Problem &p) const {
 }
 
 // AGG-posicion
-pair<Solution, Solution> Solution::cruce_posicion(const Solution &s, const Problem &p) const {
+Solution Solution::cruce_posicion(const Solution &s, const Problem &p) const {
     vector<bool> s1 = this->selected;
     vector<bool> s2 = s.selected;
 
     vector<bool> h1(s1.size());
-    vector<bool> h2(s1.size());
 
     vector<bool> restos_p1;
     vector<int> pos;
     for (int i = 0; i < s1.size(); i++) {
         if (s1[i] == s2[i])
-            h1[i] = h2[i] = s1[i];
+            h1[i] = s1[i];
         else {
             restos_p1.push_back(s1[i]);
             pos.push_back(i);
@@ -204,11 +196,8 @@ pair<Solution, Solution> Solution::cruce_posicion(const Solution &s, const Probl
     Random::shuffle(restos_p1);
     for (int i = 0; i < restos_p1.size(); i++)
         h1[pos[i]] = restos_p1[i];
-    Random::shuffle(restos_p1);
-    for (int i = 0; i < restos_p1.size(); i++)
-        h2[pos[i]] = restos_p1[i];
 
-    return pair<Solution, Solution>(Solution(h1, p), Solution(h2, p));
+    return Solution(h1, p);
 }
 
 Solution Solution::mutacion(const Problem &p) const {
@@ -295,6 +284,18 @@ vector<Solution> GeneraPoblacion(int M, Problem problema) {
         Padres[i] = Solution(selecteds, problema);
     }
     return Padres;
+}
+
+Solution Solution::cruce_multiple(const vector<Solution>& padres, const Problem& p) const {
+    vector<bool> h(p.get_m(), false);
+    vector<int> seleccionados = Random::get<vector>(0,static_cast<int>(padres.size()),p.get_m());
+    for (int i=0; i<h.size(); i++) {
+        if (seleccionados[i]==0)
+            h[i] = selected[i];
+        else
+            h[i] = padres[seleccionados[i]-1].selected[i];
+    }
+    return (Solution(repare(h,p),p));
 }
 
 
