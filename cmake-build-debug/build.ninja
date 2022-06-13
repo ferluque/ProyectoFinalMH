@@ -39,92 +39,77 @@ include CMakeFiles/rules.ninja
 #############################################
 # Logical path to working directory; prefix for absolute paths.
 
-cmake_ninja_workdir = C$:/Users/fl156/Desktop/Practica1MH/cmake-build-debug/
+cmake_ninja_workdir = C$:/Users/fl156/Desktop/ProyectoFinalMH/cmake-build-debug/
 # =============================================================================
-# Object build statements for EXECUTABLE target greedy
+# Object build statements for STATIC_LIBRARY target Problem
 
 
 #############################################
-# Order-only phony target for greedy
+# Order-only phony target for Problem
 
-build cmake_object_order_depends_target_greedy: phony || CMakeFiles/greedy.dir
+build cmake_object_order_depends_target_Problem: phony || CMakeFiles/Problem.dir
 
-build CMakeFiles/greedy.dir/src/greedy.cpp.obj: CXX_COMPILER__greedy_Debug C$:/Users/fl156/Desktop/Practica1MH/src/greedy.cpp || cmake_object_order_depends_target_greedy
-  DEP_FILE = CMakeFiles\greedy.dir\src\greedy.cpp.obj.d
+build CMakeFiles/Problem.dir/comun/Problem.cpp.obj: CXX_COMPILER__Problem_Debug C$:/Users/fl156/Desktop/ProyectoFinalMH/comun/Problem.cpp || cmake_object_order_depends_target_Problem
+  DEP_FILE = CMakeFiles\Problem.dir\comun\Problem.cpp.obj.d
   FLAGS = -g
-  INCLUDES = -IC:/Users/fl156/Desktop/Practica1MH/comun
-  OBJECT_DIR = CMakeFiles\greedy.dir
-  OBJECT_FILE_DIR = CMakeFiles\greedy.dir\src
+  INCLUDES = -IC:/Users/fl156/Desktop/ProyectoFinalMH/comun
+  OBJECT_DIR = CMakeFiles\Problem.dir
+  OBJECT_FILE_DIR = CMakeFiles\Problem.dir\comun
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target greedy
+# Link build statements for STATIC_LIBRARY target Problem
 
 
 #############################################
-# Link the executable greedy.exe
+# Link the static library libProblem.a
 
-build greedy.exe: CXX_EXECUTABLE_LINKER__greedy_Debug CMakeFiles/greedy.dir/src/greedy.cpp.obj
-  FLAGS = -g
-  LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  OBJECT_DIR = CMakeFiles\greedy.dir
+build libProblem.a: CXX_STATIC_LIBRARY_LINKER__Problem_Debug CMakeFiles/Problem.dir/comun/Problem.cpp.obj
+  LANGUAGE_COMPILE_FLAGS = -g
+  OBJECT_DIR = CMakeFiles\Problem.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_FILE = greedy.exe
-  TARGET_IMPLIB = libgreedy.dll.a
-  TARGET_PDB = greedy.exe.dbg
+  TARGET_FILE = libProblem.a
+  TARGET_PDB = Problem.a.dbg
 
 # =============================================================================
-# Object build statements for EXECUTABLE target bl
+# Object build statements for STATIC_LIBRARY target Solution
 
 
 #############################################
-# Order-only phony target for bl
+# Order-only phony target for Solution
 
-build cmake_object_order_depends_target_bl: phony || CMakeFiles/bl.dir
+build cmake_object_order_depends_target_Solution: phony || CMakeFiles/Solution.dir
 
-build CMakeFiles/bl.dir/src/bl.cpp.obj: CXX_COMPILER__bl_Debug C$:/Users/fl156/Desktop/Practica1MH/src/bl.cpp || cmake_object_order_depends_target_bl
-  DEP_FILE = CMakeFiles\bl.dir\src\bl.cpp.obj.d
+build CMakeFiles/Solution.dir/comun/Solution.cpp.obj: CXX_COMPILER__Solution_Debug C$:/Users/fl156/Desktop/ProyectoFinalMH/comun/Solution.cpp || cmake_object_order_depends_target_Solution
+  DEP_FILE = CMakeFiles\Solution.dir\comun\Solution.cpp.obj.d
   FLAGS = -g
-  INCLUDES = -IC:/Users/fl156/Desktop/Practica1MH/comun
-  OBJECT_DIR = CMakeFiles\bl.dir
-  OBJECT_FILE_DIR = CMakeFiles\bl.dir\src
+  INCLUDES = -IC:/Users/fl156/Desktop/ProyectoFinalMH/comun
+  OBJECT_DIR = CMakeFiles\Solution.dir
+  OBJECT_FILE_DIR = CMakeFiles\Solution.dir\comun
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target bl
+# Link build statements for STATIC_LIBRARY target Solution
 
 
 #############################################
-# Link the executable bl.exe
+# Link the static library libSolution.a
 
-build bl.exe: CXX_EXECUTABLE_LINKER__bl_Debug CMakeFiles/bl.dir/src/bl.cpp.obj
-  FLAGS = -g
-  LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  OBJECT_DIR = CMakeFiles\bl.dir
+build libSolution.a: CXX_STATIC_LIBRARY_LINKER__Solution_Debug CMakeFiles/Solution.dir/comun/Solution.cpp.obj
+  LANGUAGE_COMPILE_FLAGS = -g
+  OBJECT_DIR = CMakeFiles\Solution.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_FILE = bl.exe
-  TARGET_IMPLIB = libbl.dll.a
-  TARGET_PDB = bl.exe.dbg
-
-
-#############################################
-# Utility command for edit_cache
-
-build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D C:\Users\fl156\Desktop\Practica1MH\cmake-build-debug && "C:\Program Files\JetBrains\CLion 2021.3.4\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available.""
-  DESC = No interactive CMake dialog available...
-  restat = 1
-
-build edit_cache: phony CMakeFiles/edit_cache.util
+  TARGET_FILE = libSolution.a
+  TARGET_PDB = Solution.a.dbg
 
 
 #############################################
 # Utility command for rebuild_cache
 
 build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D C:\Users\fl156\Desktop\Practica1MH\cmake-build-debug && "C:\Program Files\JetBrains\CLion 2021.3.4\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -SC:\Users\fl156\Desktop\Practica1MH -BC:\Users\fl156\Desktop\Practica1MH\cmake-build-debug"
+  COMMAND = cmd.exe /C "cd /D C:\Users\fl156\Desktop\ProyectoFinalMH\cmake-build-debug && "C:\Program Files\JetBrains\CLion 2021.3.4\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -SC:\Users\fl156\Desktop\ProyectoFinalMH -BC:\Users\fl156\Desktop\ProyectoFinalMH\cmake-build-debug"
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -132,11 +117,94 @@ build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
 build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 
 # =============================================================================
+# Object build statements for EXECUTABLE target BMO
+
+
+#############################################
+# Order-only phony target for BMO
+
+build cmake_object_order_depends_target_BMO: phony || cmake_object_order_depends_target_Problem cmake_object_order_depends_target_Solution
+
+build CMakeFiles/BMO.dir/src/BMO.cpp.obj: CXX_COMPILER__BMO_Debug C$:/Users/fl156/Desktop/ProyectoFinalMH/src/BMO.cpp || cmake_object_order_depends_target_BMO
+  DEP_FILE = CMakeFiles\BMO.dir\src\BMO.cpp.obj.d
+  FLAGS = -g
+  INCLUDES = -IC:/Users/fl156/Desktop/ProyectoFinalMH/comun
+  OBJECT_DIR = CMakeFiles\BMO.dir
+  OBJECT_FILE_DIR = CMakeFiles\BMO.dir\src
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target BMO
+
+
+#############################################
+# Link the executable BMO.exe
+
+build BMO.exe: CXX_EXECUTABLE_LINKER__BMO_Debug CMakeFiles/BMO.dir/src/BMO.cpp.obj | libProblem.a libSolution.a || libProblem.a libSolution.a
+  FLAGS = -g
+  LINK_LIBRARIES = libProblem.a  libSolution.a  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  OBJECT_DIR = CMakeFiles\BMO.dir
+  POST_BUILD = cd .
+  PRE_LINK = cd .
+  TARGET_FILE = BMO.exe
+  TARGET_IMPLIB = libBMO.dll.a
+  TARGET_PDB = BMO.exe.dbg
+
+# =============================================================================
+# Object build statements for EXECUTABLE target pruebas
+
+
+#############################################
+# Order-only phony target for pruebas
+
+build cmake_object_order_depends_target_pruebas: phony || cmake_object_order_depends_target_Problem cmake_object_order_depends_target_Solution
+
+build CMakeFiles/pruebas.dir/src/pruebas.cpp.obj: CXX_COMPILER__pruebas_Debug C$:/Users/fl156/Desktop/ProyectoFinalMH/src/pruebas.cpp || cmake_object_order_depends_target_pruebas
+  DEP_FILE = CMakeFiles\pruebas.dir\src\pruebas.cpp.obj.d
+  FLAGS = -g
+  INCLUDES = -IC:/Users/fl156/Desktop/ProyectoFinalMH/comun
+  OBJECT_DIR = CMakeFiles\pruebas.dir
+  OBJECT_FILE_DIR = CMakeFiles\pruebas.dir\src
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target pruebas
+
+
+#############################################
+# Link the executable pruebas.exe
+
+build pruebas.exe: CXX_EXECUTABLE_LINKER__pruebas_Debug CMakeFiles/pruebas.dir/src/pruebas.cpp.obj | libProblem.a libSolution.a || libProblem.a libSolution.a
+  FLAGS = -g
+  LINK_LIBRARIES = libProblem.a  libSolution.a  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  OBJECT_DIR = CMakeFiles\pruebas.dir
+  POST_BUILD = cd .
+  PRE_LINK = cd .
+  TARGET_FILE = pruebas.exe
+  TARGET_IMPLIB = libpruebas.dll.a
+  TARGET_PDB = pruebas.exe.dbg
+
+
+#############################################
+# Utility command for edit_cache
+
+build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cmd.exe /C "cd /D C:\Users\fl156\Desktop\ProyectoFinalMH\cmake-build-debug && "C:\Program Files\JetBrains\CLion 2021.3.4\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available.""
+  DESC = No interactive CMake dialog available...
+  restat = 1
+
+build edit_cache: phony CMakeFiles/edit_cache.util
+
+# =============================================================================
 # Target aliases.
 
-build bl: phony bl.exe
+build BMO: phony BMO.exe
 
-build greedy: phony greedy.exe
+build Problem: phony libProblem.a
+
+build Solution: phony libSolution.a
+
+build pruebas: phony pruebas.exe
 
 # =============================================================================
 # Folder targets.
@@ -144,9 +212,9 @@ build greedy: phony greedy.exe
 # =============================================================================
 
 #############################################
-# Folder: C:/Users/fl156/Desktop/Practica1MH/cmake-build-debug
+# Folder: C:/Users/fl156/Desktop/ProyectoFinalMH/cmake-build-debug
 
-build all: phony greedy.exe bl.exe
+build all: phony libProblem.a libSolution.a BMO.exe pruebas.exe
 
 # =============================================================================
 # Built-in targets

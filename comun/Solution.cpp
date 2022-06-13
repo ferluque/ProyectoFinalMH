@@ -1,14 +1,14 @@
 //
-// Created by Fernando on 08/05/2022.
+// Created by fl156 on 05/05/2022.
 //
+
 #include "Solution.h"
-#include <algorithm>
-#include "random.hpp"
+#include <map>
 
-using Random = effolkronium::random_static;
 using namespace std;
+using Random = effolkronium::random_static;
 
-void Solution::check_max_min(float new_delta) {
+void Solution::check_max_min() {
     max_delta = min_delta = deltas.begin()->second;
     for (auto it = deltas.begin(); it != deltas.end(); ++it) {
         if ((*it).second > max_delta)
@@ -19,53 +19,12 @@ void Solution::check_max_min(float new_delta) {
     diff = max_delta - min_delta;
 }
 
-float Solution::delta(int u, const std::vector<std::vector<float>> &d) const {
+float Solution::delta(int u, const vector<vector<float>> &d) const {
     float de = 0.0;
-    for (int i: selected)
-        de += d[i][u];
+    for (int i = 0; i < selected.size(); i++)
+        if (selected[i])
+            de += d[i][u];
     return de;
-}
-
-Solution Solution::exchange(int i, int j, vector<vector<float>> d) {
-    // Saco la i de selected y de deltas
-    selected.erase(find(selected.begin(), selected.end(), i));
-    deltas.erase(i);
-
-    // Meto j en selected
-    selected.push_back(j);
-    deltas[j] = delta(j,d);
-
-    // FUNCIÓN OBJETIVO FACTORIZADA
-    // Actualizo los valores de min_delta y max_delta
-    // Para ello tengo que restar d[i][selected[k]] y sumar d[j][selected[k]] a los deltas
-    deltas[selected[0]] = min_delta = max_delta = deltas[selected[0]] - d[i][selected[0]] + d[j][selected[0]];
-    for (int k = 1; k < selected.size()-1; k++) {
-        float de = deltas[selected[k]] = deltas[selected[k]] - d[i][selected[k]] + d[j][selected[k]];
-        if (de>max_delta)
-            max_delta = de;
-        if (de<min_delta)
-            min_delta = de;
-    }
-    if (deltas[j]>max_delta)
-        max_delta = deltas[j];
-    if (deltas[j]<min_delta)
-        min_delta = deltas[j];
-    diff = max_delta - min_delta;
-    return *this;
-}
-
-Solution::Solution(std::vector<int> s, const Problem& p) {
-    selected = s;
-    deltas[selected[0]] = max_delta = min_delta = delta(s[0], p.get_d());
-    for (int i = 1; i < selected.size(); i++) {
-        float de = delta(selected[i],p.get_d());
-        deltas[selected[i]] = de;
-        if (de>max_delta)
-            max_delta = de;
-        if (de<min_delta)
-            min_delta = de;
-    }
-    diff = max_delta - min_delta;
 }
 
 Solution::Solution(const Solution &c) {
@@ -74,86 +33,268 @@ Solution::Solution(const Solution &c) {
     this->min_delta = c.min_delta;
     this->diff = c.diff;
     this->deltas = c.deltas;
-};
-
-Solution Solution::neighbor(int i, int j, std::vector<std::vector<float>> d) {
-    Solution vecino(*this);
-    return vecino.exchange(i, j, d);
 }
 
-void Solution::print_dist(std::string file_out, const std::vector<std::vector<float>> &d) {
+float Solution::get_diff() const { return diff; }
+
+int Solution::get_size() const { return (int) selected.size(); }
+
+const vector<bool> &Solution::get_selected() { return selected; };
+
+void Solution::print_dist(string file_out, const vector<vector<float>> &d) {
     ofstream out;
     out.open(file_out);
     out << ";";
-    for (int i: selected)
-        out << i << ";";
+    for (int i = 0; i < selected.size(); i++)
+        if (selected[i])
+            out << i << ";";
     out << endl;
-    for (int i: selected) {
-        out << i << ";";
-        for (int j: selected) {
-            out << d[i][j] << ";";
+    for (int i = 0; i < selected.size(); i++) {
+        if (selected[i]) {
+            out << i << ";";
+            for (int j = 0; j < selected.size(); j++) {
+                if (selected[j])
+                    out << d[i][j] << ";";
+            }
+            out << endl;
         }
-        out << endl;
     }
 }
 
-Solution::Solution(){}
-
-Solution Solution::mutacion(Problem p, float prop) {
-    for (int i=0; i<selected.size();i++)
-        p.extract(selected[i]);
-    int num_cambios = prop*selected.size();
-    Solution mutada(*this);
-    for (int i=0; i<num_cambios;i++) {
-        pair<int,int> intercambio(Random::get<int>(0,mutada.get_selected().size()-1), Random::get<int>(0,p.get_N().size()-1));
-        int saca = mutada.get_selected()[intercambio.first], mete=p.get_N()[intercambio.second];
-        mutada = mutada.neighbor(saca, mete, p.get_d());
-        p.extract(mete);
-        p.insert(saca);
-    }
-
-    return mutada;
-}
-
-ostream& operator<<(ostream& out, Solution s) {
+ostream &operator<<(ostream &out, Solution s) {
     out << "Escogidos: (";
-    vector<int> selected = s.get_selected();
-    for (int i : selected) {
-        out << i << ", ";
-    }
+    vector<bool> selected = s.get_selected();
+    for (int i = 0; i < selected.size(); i++)
+        if (selected[i])
+            out << i << ", ";
     out << ")" << endl;
     out << "Valor de diff: " << s.get_diff() << endl;
     return out;
 }
 
+// AGG-Uniforme
+// Depurar
+pair<Solution, Solution> Solution::cruce_uniforme(const Solution &s, const Problem &p) const {
+    vector<bool> s1 = this->selected;
+    vector<bool> s2 = s.selected;
+
+    vector<bool> h1(s1.size());
+    vector<bool> h2(s1.size());
+    // Nos quedamos con los que coincidan
+    for (int i = 0; i < s1.size(); i++) {
+        if (s1[i] == s2[i])
+            h1[i] = h2[i] = s1[i];
+            // Los que no se elige aleatoriamente de uno u otro
+        else {
+            bool uno = Random::get<bool>();
+            if (uno)
+                h1[i] = s1[i];
+            else
+                h1[i] = s2[i];
+            uno = Random::get<bool>();
+            if (uno)
+                h2[i] = s1[i];
+            else
+                h2[i] = s2[i];
+        }
+    }
+    h1 = repare(h1, p);
+    h2 = repare(h2, p);
+    return pair<Solution, Solution>(Solution(h1, p), Solution(h2, p));
+}
+
+Solution::Solution(const std::vector<bool> &s, const Problem &p) {
+    selected = s;
+    for (int i = 0; i < selected.size(); i++) {
+        if (selected[i]) {
+            deltas[i] = delta(i, p.get_d());
+        }
+    }
+    check_max_min();
+}
+
+float Solution::avg(std::vector<bool> h, const Problem& p) const {
+    // Calculamos la media
+    float avg = 0.0;
+    for (int i=0; i<h.size(); i++)
+        if (h[i])
+            avg += delta(i, p.get_d());
+    return avg/(int)std::count(h.begin(), h.end(), true);
+}
+
+vector<bool> Solution::repare(vector<bool> h, const Problem &p) const {
+    // Calculamos cuánto nos pasamos
+    int sizeS = count(h.begin(),h.end(),true);
+    int v = p.get_m()-count(h.begin(), h.end(), true);
+    if (v==0)
+        return h;
+    if (v<0) {
+        while (v<0) {
+            float average = avg(h,p);
+            int j;
+            bool primero = true;
+            float max;
+            for (int i=0; i<h.size(); i++) {
+                if (h[i]) {
+                    if (primero) {
+                        j = i;
+                        max = abs(delta(j, p.get_d())-average);
+                        primero = false;
+                    } else {
+                        float deltai = delta(i, p.get_d());
+                        if (abs(deltai-average) > max) {
+                            j = i;
+                            max = abs(deltai-average);
+                        }
+                    }
+                }
+            }
+            h[j] = 0;
+            average = avg(h,p);
+            v++;
+        }
+    }
+    if (v>0) {
+        while (v>0) {
+            float average = avg(h,p);
+            int j;
+            bool primero = true;
+            float min;
+            for (int i=0; i<h.size(); i++) {
+                if (!h[i]) {
+                    if (primero) {
+                        j = i;
+                        min = abs(delta(j, p.get_d())-average);
+                        primero = false;
+                    } else {
+                        float deltai = delta(i, p.get_d());
+                        if (abs(deltai-average) < min) {
+                            j = i;
+                            min = abs(deltai-average);
+                        }
+                    }
+                }
+            }
+            h[j] = 1;
+            average = avg(h,p);
+            v--;
+        }
+    }
+    return h;
+}
+
+// AGG-posicion
+pair<Solution, Solution> Solution::cruce_posicion(const Solution &s, const Problem &p) const {
+    vector<bool> s1 = this->selected;
+    vector<bool> s2 = s.selected;
+
+    vector<bool> h1(s1.size());
+    vector<bool> h2(s1.size());
+
+    vector<bool> restos_p1;
+    vector<int> pos;
+    for (int i = 0; i < s1.size(); i++) {
+        if (s1[i] == s2[i])
+            h1[i] = h2[i] = s1[i];
+        else {
+            restos_p1.push_back(s1[i]);
+            pos.push_back(i);
+        }
+    }
+    Random::shuffle(restos_p1);
+    for (int i = 0; i < restos_p1.size(); i++)
+        h1[pos[i]] = restos_p1[i];
+    Random::shuffle(restos_p1);
+    for (int i = 0; i < restos_p1.size(); i++)
+        h2[pos[i]] = restos_p1[i];
+
+    return pair<Solution, Solution>(Solution(h1, p), Solution(h2, p));
+}
+
+Solution Solution::mutacion(const Problem &p) const {
+    Solution mutada(*this);
+    // Generamos los genes que van a mutar
+    // Hay que hacer que necesariamente se cambie un 0 por un 1 o viceversa
+    int xi = Random::get<int>(0, selected.size() - 1), xj = Random::get<int>(0, selected.size() - 1);
+    while (selected[xi] == selected[xj]) {
+        xi = Random::get<int>(0, selected.size() - 1);
+        xj = Random::get<int>(0, selected.size() - 1);
+    }
+    bool aux = mutada.selected[xi];
+    mutada.selected[xi] = mutada.selected[xj];
+    mutada.selected[xj] = aux;
+    // Si ahora es el xi el que pasa a ser 1 (antes xj era 1)
+    if (mutada.selected[xi]) {
+        // Eliminamos el xj de los deltas
+        // Antes de eliminar el xj de los deltas, debemos restarlo a los otros deltas
+        for (auto it = mutada.deltas.begin(); it != mutada.deltas.end(); ++it)
+            if ((*it).first != xj)
+                (*it).second -= p.get_d()[xj][(*it).first];
+        mutada.deltas.erase(xj);
+
+        // Ahora ya añadimos el xi
+        mutada.deltas[xi] = mutada.delta(xi, p.get_d());
+        // Y sumamos el delta que añade al resto
+        for (auto it = mutada.deltas.begin(); it != mutada.deltas.end(); ++it)
+            if ((*it).first != xi)
+                (*it).second += p.get_d()[xi][(*it).first];
+    }
+        // Si es el xj el que pasa a ser 1
+    else {
+        // Eliminamos el xi de los deltas
+        // Antes de eliminar el xj de los deltas, debemos restarlo a los otros deltas
+        for (auto it = mutada.deltas.begin(); it != mutada.deltas.end(); ++it)
+            if ((*it).first != xi)
+                (*it).second -= p.get_d()[xi][(*it).first];
+        mutada.deltas.erase(xi);
+
+        // Ahora ya añadimos el xj
+        mutada.deltas[xj] = mutada.delta(xj, p.get_d());
+        // Y sumamos el delta que añade al resto
+        for (auto it = mutada.deltas.begin(); it != mutada.deltas.end(); ++it)
+            if ((*it).first != xj)
+                (*it).second += p.get_d()[xj][(*it).first];
+    }
+    mutada.check_max_min();
+
+    return mutada;
+}
+
+Solution::Solution() {
+    min_delta = max_delta = diff = 0;
+}
+
 vector<int> range(int init, int fin) {
-    assert(fin>init);
-    vector<int> v(fin-init);
-    for (int i=init;i<fin;i++)
-        v[i-init] = i;
+    assert(fin > init);
+    vector<int> v(fin - init);
+    for (int i = init; i < fin; i++)
+        v[i - init] = i;
     return v;
 }
 
-Solution SolucionAleatoria(Problem& p) {
-    vector<int> puntos = range(0,p.get_n());
-    Random::shuffle(puntos);
-    Solution escogida(vector<int>(puntos.begin(),puntos.begin()+p.get_m()),p);
-    return escogida;
+Solution::Solution(int size) {
+    selected.resize(size);
+    for (int i = 0; i < selected.size(); i++)
+        selected[i] = 0;
+    max_delta = min_delta = 0;
 }
 
-vector<pair<int,int>> vecinosPosibles(const Solution& s, const Problem& p) {
-    vector<pair<int,int>> vecinos;
-    for (int i=0; i<s.get_selected().size(); ++i) {
-        int saca = s.get_selected()[i];
-        for (int j=0; j<p.get_N().size(); ++j) {
-            int mete = p.get_N()[j];
-            vecinos.push_back(pair<int,int>(saca, mete));
+
+// Generar los M padres aleatoriamente eligiendo n posiciones que poner a 1
+vector<Solution> GeneraPoblacion(int M, Problem problema) {
+    vector<Solution> Padres(M);
+    vector<int> posiciones = range(0, problema.get_n());
+    int pos;
+    for (int i = 0; i < Padres.size(); i++) {
+        vector<bool> selecteds(problema.get_n(), false);
+        Random::shuffle(posiciones);
+        pos = 0;
+        for (int i = 0; i < problema.get_m(); i++) {
+            selecteds[posiciones[i]] = true;
         }
+        Padres[i] = Solution(selecteds, problema);
     }
-    return vecinos;
+    return Padres;
 }
 
-ostream& operator<<(ostream& out, pair<int,int> p) {
-    out << "("<<p.first<< ", "<<p.second << ")";
-    return out;
-}
+

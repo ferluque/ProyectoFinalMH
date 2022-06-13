@@ -9,17 +9,19 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include "random.hpp"
 #include "Problem.h"
 
-class Solution{
+
+class Solution {
 private:
-    std::vector<int> selected;
+    std::vector<bool> selected;
     float diff;
     float max_delta;
     float min_delta;
     std::map<int,float> deltas;
 
-    void check_max_min(float new_delta);
+    void check_max_min();
 
     /**
      * Calcula la dispersión de un punto u en el conjunto de seleccionados
@@ -29,53 +31,38 @@ private:
      */
     float delta(int u, const std::vector<std::vector<float>>& d) const;
 
-    /**
-     * Intercambia el vecino i por j y modifica valores correspondientes
-     * @param i
-     * @param j
-     * @param d
-     * @return Devuelve la solución con los puntos cambiados
-     */
-    Solution exchange(int i, int j, std::vector<std::vector<float>> d);
-public:
-    /**
-     * Constructor que inicializa la solución al vector de seleccionados que le pasamos (función utilizada en la bl)
-     * @param s El vector de seleccionados
-     * @param d La matriz de distancias
-     */
-    Solution(std::vector<int> s, const Problem& p);
+    float avg(std::vector<bool> h, const Problem& p) const;
 
+public:
+    Solution();
     /**
      * Constructor de copia
      * @param c
      */
     Solution(const Solution& c);
-    /**
-     * Mecanismo de generación de vecinos. Intercambia el elemento i por el j y devuelve la solución con el respectivo
-     * valor de diff, max y min delta y deltas
-     * @param i El elemento que saca
-     * @param j El elemento que mete
-     * @return El vecino
-     */
-    Solution neighbor(int i, int j, std::vector<std::vector<float>> d);
 
+    float get_diff() const;
 
-    float get_diff() const {return diff;};
+    int get_size() const;
 
-    int get_size() const {return (int)selected.size();};
-
-    const std::vector<int>& get_selected() const {return selected;};
+    const std::vector<bool>& get_selected();
 
     void print_dist(std::string file_out, const std::vector<std::vector<float>>& d);
 
-    Solution();
+    // AGG-Uniforme
+    std::pair<Solution,Solution> cruce_uniforme(const Solution& s, const Problem& p) const;
+    std::vector<bool> repare(std::vector<bool> h, const Problem& p) const;
+    Solution(const std::vector<bool>& s, const Problem& p);
 
-    Solution mutacion(Problem p, float prop=0.3);
+    // AGG-posicion
+    std::pair<Solution,Solution> cruce_posicion(const Solution& s, const Problem& p) const;
+
+    // AGG común
+    Solution mutacion(const Problem& p) const;
+    Solution(int size);
 };
 
 std::ostream& operator<<(std::ostream& out, Solution s);
-
-std::ostream& operator<<(std::ostream& out, std::pair<int,int> p);
 
 template <class T>
 std::ostream& operator<<(std::ostream& out, std::vector<T> v) {
@@ -86,12 +73,16 @@ std::ostream& operator<<(std::ostream& out, std::vector<T> v) {
     return out;
 }
 
+class SolutionCompare {
+public:
+    bool operator()(const Solution& s1, const Solution& s2) {
+        return s1.get_diff()<s2.get_diff();
+    };
+};
+
 std::vector<int> range(int init, int fin);
 
-std::vector<Solution> genera_p0(int M, const Problem& p);
+std::vector<Solution> GeneraPoblacion(int M, Problem problema);
 
-Solution SolucionAleatoria(Problem& p);
-
-std::vector<std::pair<int,int>> vecinosPosibles(const Solution& s, const Problem& p);
 
 #endif //MDD_SOLUTION_H
